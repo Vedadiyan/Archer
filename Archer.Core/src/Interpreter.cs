@@ -49,7 +49,7 @@ namespace Archer.Core
 
                 }
                 Router.RegisterRoutes(routes.Select(x => x.Value).ToArray());
-                Router.RegisterRoute(new Route("help", "Get", new SimpleResponseHandler(Router.Routes.SelectMany(x=> x.Value).Select(x=> x.Value))));
+                Router.RegisterRoute(new Route("help", "Get", new SimpleResponseHandler(Router.Routes.SelectMany(x => x.Value).Select(x => x.Value))));
             }
             catch (Exception ex)
             {
@@ -149,29 +149,29 @@ namespace Archer.Core
                     switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
                     {
                         case "create":
-                            definition.RouteTemplate = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                            definition.RouteTemplate = trim(values[1]);
                             break;
                         case "authentication":
-                            definition.Authentication = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                            definition.Authentication = trim(values[1]);
                             break;
                         case "wrapped":
-                            var wrappedValue = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().ToLower().Split('|');
-                            if (wrappedValue[0].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd() == "true")
+                            var wrappedValue = trim(values[1]).ToLower().Split('|');
+                            if (trim(wrappedValue[0]) == "true")
                             {
                                 definition.IsWrapped = true;
                             }
-                            if (wrappedValue.Length > 1 && wrappedValue[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd() == "camelcase")
+                            if (wrappedValue.Length > 1 && trim(wrappedValue[1]) == "camelcase")
                             {
                                 definition.IsCamelCase = true;
                             }
                             break;
                         case "logs":
                             {
-                                var logValue = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().Split('|');
-                                definition.Logs = logValue[0].TrimEnd().TrimEnd('\t').TrimEnd();
+                                var logValue = trim(values[1]).Split('|');
+                                definition.Logs = trim(logValue[0]);
                                 if (logValue.Length > 1)
                                 {
-                                    var logLevel = logValue[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                    var logLevel = trim(logValue[1]);
                                     switch (logLevel.ToLower())
                                     {
                                         case "verbose":
@@ -194,11 +194,11 @@ namespace Archer.Core
                                 break;
                             }
                         case "method":
-                            definition.Method = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                            definition.Method = trim(values[1]);
                             break;
                         case "data-source":
                             {
-                                String value = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                String value = trim(values[1]);
                                 i++;
                                 switch (value.ToLower())
                                 {
@@ -213,16 +213,16 @@ namespace Archer.Core
                                                 switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
                                                 {
                                                     case "connection":
-                                                        mSSqlProvider.ConnectionString = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                        mSSqlProvider.ConnectionString = trim(values[1]);
                                                         break;
                                                     case "command":
-                                                        mSSqlProvider.Command = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                        mSSqlProvider.Command = trim(values[1]);
                                                         break;
                                                     case "command-type":
-                                                        mSSqlProvider.CommandType = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                        mSSqlProvider.CommandType = trim(values[1]);
                                                         break;
                                                     case "use":
-                                                        switch (values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().ToLower())
+                                                        switch (trim(values[1]))
                                                         {
                                                             case "body":
                                                                 mSSqlProvider.UseBody = true;
@@ -231,8 +231,8 @@ namespace Archer.Core
                                                         break;
                                                     case "param":
                                                         {
-                                                            String[] parameter = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().Split("=");
-                                                            parameters.Add(parameter[0], parameter[1]);
+                                                            String[] parameter = trim(values[1]).Split("=");
+                                                            parameters.Add(trim(parameter[0]), trim(parameter[1]));
                                                             break;
                                                         }
                                                     case "output":
@@ -241,8 +241,8 @@ namespace Archer.Core
                                                             i++;
                                                             for (; i < text.Length && continueL1; i++)
                                                             {
-                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                values = trim(text[i]).Split(' ', 2);
+                                                                switch (trim(values[0]))
                                                                 {
                                                                     case "group":
                                                                         {
@@ -251,8 +251,8 @@ namespace Archer.Core
                                                                             Boolean continueL2 = true;
                                                                             for (; i < text.Length && continueL2; i++)
                                                                             {
-                                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                                values = trim(text[i]).Split(' ', 2);
+                                                                                switch (trim(values[0]).ToLower())
                                                                                 {
                                                                                     case "begin":
                                                                                         break;
@@ -277,8 +277,8 @@ namespace Archer.Core
                                                                             i++;
                                                                             for (; i < text.Length && continueL2; i++)
                                                                             {
-                                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                                values = trim(text[i]).Split(' ', 2);
+                                                                                switch (trim(values[0]).ToLower())
                                                                                 {
                                                                                     case "begin":
                                                                                         break;
@@ -303,7 +303,7 @@ namespace Archer.Core
                                                                             i++;
                                                                             for (; i < text.Length && continueL2; i++)
                                                                             {
-                                                                                String _value = text[i].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().TrimEnd('\t').TrimEnd();
+                                                                                String _value = trim(text[i]);
                                                                                 switch (_value.ToLower())
                                                                                 {
                                                                                     case "begin":
@@ -346,17 +346,17 @@ namespace Archer.Core
                                             MongoDbProvider mongoDbProvider = new MongoDbProvider();
                                             for (; i < text.Length && @continue; i++)
                                             {
-                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                values = trim(text[i]).Split(' ', 2);
+                                                switch (trim(values[0]).ToLower())
                                                 {
                                                     case "connection":
-                                                        mongoDbProvider.ConnectionString = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                        mongoDbProvider.ConnectionString = trim(values[1]);
                                                         break;
                                                     case "database":
-                                                        mongoDbProvider.Database = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                        mongoDbProvider.Database = trim(values[1]);
                                                         break;
                                                     case "collection":
-                                                        mongoDbProvider.Collection = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                        mongoDbProvider.Collection = trim(values[1]);
                                                         break;
                                                     case "query":
                                                         {
@@ -365,9 +365,9 @@ namespace Archer.Core
                                                             Boolean continueL2 = true;
                                                             for (; i < text.Length && continueL2; i++)
                                                             {
-                                                                String tmp = text[i].TrimStart().TrimStart('\t').TrimStart();
+                                                                String tmp = trim(text[i]);
                                                                 values = tmp.Split(' ', 2);
-                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                switch (trim(values[0]).ToLower())
                                                                 {
                                                                     case "begin":
                                                                         break;
@@ -386,7 +386,7 @@ namespace Archer.Core
                                                             break;
                                                         }
                                                     case "use":
-                                                        switch (values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().ToLower())
+                                                        switch (trim(values[1]).ToLower())
                                                         {
                                                             case "body":
                                                                 mongoDbProvider.UseBody = true;
@@ -408,14 +408,14 @@ namespace Archer.Core
                                             RedisProvider redisProviders = new RedisProvider();
                                             for (; i < text.Length && @continue; i++)
                                             {
-                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                values = trim(text[i]).Split(' ', 2);
+                                                switch (trim(values[0]).ToLower())
                                                 {
                                                     case "connection":
-                                                        redisProviders.ConnectionString = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                        redisProviders.ConnectionString = trim(values[1]);
                                                         break;
                                                     case "database":
-                                                        redisProviders.Database = int.Parse(values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd());
+                                                        redisProviders.Database = int.Parse(trim(values[1]));
                                                         break;
                                                     case "key":
                                                         {
@@ -429,13 +429,13 @@ namespace Archer.Core
                                                             TaskProvider taskProvider = new TaskProvider();
                                                             for (; i < text.Length && continueL1; i++)
                                                             {
-                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                values = trim(text[i]).Split(' ', 2);
+                                                                switch (trim(values[0]).ToLower())
                                                                 {
                                                                     case "data-source":
                                                                         {
                                                                             Boolean continueL2 = true;
-                                                                            String _values = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                                            String _values = trim(values[1]);
                                                                             i++;
                                                                             switch (_values.ToLower())
                                                                             {
@@ -445,27 +445,27 @@ namespace Archer.Core
                                                                                         Dictionary<String, String> parameters = new Dictionary<String, String>();
                                                                                         for (; i < text.Length && continueL2; i++)
                                                                                         {
-                                                                                            values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                                            switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                                            values = trim(text[i]).Split(' ', 2);
+                                                                                            switch (trim(values[0]).ToLower())
                                                                                             {
                                                                                                 case "connection":
                                                                                                     {
-                                                                                                        mssqlProvider.ConnectionString = values[1].TrimStart().TrimStart('\t').TrimStart();
+                                                                                                        mssqlProvider.ConnectionString = trim(values[1]);
                                                                                                         break;
                                                                                                     }
                                                                                                 case "command":
                                                                                                     {
-                                                                                                        mssqlProvider.Command = values[1].TrimStart().TrimStart('\t').TrimStart();
+                                                                                                        mssqlProvider.Command = trim(values[1]);
                                                                                                         break;
                                                                                                     }
                                                                                                 case "command-type":
                                                                                                     {
-                                                                                                        mssqlProvider.CommandType = values[1].TrimStart().TrimStart('\t').TrimStart();
+                                                                                                        mssqlProvider.CommandType = trim(values[1]);
                                                                                                         break;
                                                                                                     }
                                                                                                 case "param":
                                                                                                     {
-                                                                                                        String[] parameter = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().Split("=");
+                                                                                                        String[] parameter = trim(values[1]).Split("=");
                                                                                                         parameters.Add(parameter[0], parameter[1]);
                                                                                                         break;
                                                                                                     }
@@ -486,7 +486,7 @@ namespace Archer.Core
                                                                         }
                                                                     case "interval":
                                                                         {
-                                                                            taskProvider.Interval = TimeSpan.Parse(values[1].TrimStart().TrimStart('\t').TrimStart());
+                                                                            taskProvider.Interval = TimeSpan.Parse(trim(values[1]));
                                                                             break;
                                                                         }
                                                                     case "end":
@@ -504,8 +504,8 @@ namespace Archer.Core
                                                             i++;
                                                             for (; i < text.Length && continueL1; i++)
                                                             {
-                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                values = trim(text[i]).Split(' ', 2);
+                                                                switch (trim(values[0]).ToLower())
                                                                 {
                                                                     case "group":
                                                                         {
@@ -514,8 +514,8 @@ namespace Archer.Core
                                                                             Boolean continueL2 = true;
                                                                             for (; i < text.Length && continueL2; i++)
                                                                             {
-                                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                                values = trim(text[i]).Split(' ', 2);
+                                                                                switch (trim(values[0]).ToLower())
                                                                                 {
                                                                                     case "begin":
                                                                                         break;
@@ -540,8 +540,8 @@ namespace Archer.Core
                                                                             i++;
                                                                             for (; i < text.Length && continueL2; i++)
                                                                             {
-                                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                                values = trim(text[i]).Split(' ', 2);
+                                                                                switch (trim(values[0]).ToLower())
                                                                                 {
                                                                                     case "begin":
                                                                                         break;
@@ -566,7 +566,7 @@ namespace Archer.Core
                                                                             i++;
                                                                             for (; i < text.Length && continueL2; i++)
                                                                             {
-                                                                                String _value = text[i].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                                                String _value = trim(text[i]);
                                                                                 switch (_value.ToLower())
                                                                                 {
                                                                                     case "begin":
@@ -594,7 +594,7 @@ namespace Archer.Core
                                                             break;
                                                         }
                                                     case "use":
-                                                        switch (values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().ToLower())
+                                                        switch (trim(values[1]).ToLower())
                                                         {
                                                             case "body":
                                                                 redisProviders.UseBody = true;
@@ -617,11 +617,11 @@ namespace Archer.Core
                                             Dictionary<String, String> parameters = new Dictionary<String, String>();
                                             for (; i < text.Length && @continue; i++)
                                             {
-                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                values = trim(text[i]).Split(' ', 2);
+                                                switch (trim(values[0]).ToLower())
                                                 {
                                                     case "url":
-                                                        routeProvider.Url = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd();
+                                                        routeProvider.Url = trim(values[1]);
                                                         break;
                                                     case "headers":
                                                         {
@@ -630,9 +630,9 @@ namespace Archer.Core
                                                             Boolean continueL2 = true;
                                                             for (; i < text.Length && continueL2; i++)
                                                             {
-                                                                String tmp = text[i].TrimStart().TrimStart('\t').TrimStart();
+                                                                String tmp = trim(text[i]);
                                                                 values = tmp.Split(' ', 2);
-                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                switch (trim(values[0]).ToLower())
                                                                 {
                                                                     case "begin":
                                                                         break;
@@ -661,8 +661,8 @@ namespace Archer.Core
                                                             i++;
                                                             for (; i < text.Length && continueL1; i++)
                                                             {
-                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                values = trim(text[i]).Split(' ', 2);
+                                                                switch (trim(values[0]).ToLower())
                                                                 {
                                                                     case "map":
                                                                         {
@@ -671,8 +671,8 @@ namespace Archer.Core
                                                                             i++;
                                                                             for (; i < text.Length && continueL2; i++)
                                                                             {
-                                                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                                                values = trim(text[i]).Split(' ', 2);
+                                                                                switch (trim(values[0]).ToLower())
                                                                                 {
                                                                                     case "begin":
                                                                                         break;
@@ -697,7 +697,7 @@ namespace Archer.Core
                                                                             i++;
                                                                             for (; i < text.Length && continueL2; i++)
                                                                             {
-                                                                                String _value = text[i].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                                                String _value = trim(text[i]);
                                                                                 switch (_value.ToLower())
                                                                                 {
                                                                                     case "begin":
@@ -726,7 +726,7 @@ namespace Archer.Core
                                                         }
 
                                                     case "use":
-                                                        switch (values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().ToLower())
+                                                        switch (trim(values[1]).ToLower())
                                                         {
                                                             case "body":
                                                                 routeProvider.UseBody = true;
@@ -749,15 +749,15 @@ namespace Archer.Core
                                             Dictionary<String, String> parameters = new Dictionary<String, String>();
                                             for (; i < text.Length && @continue; i++)
                                             {
-                                                values = text[i].TrimStart().TrimStart('\t').TrimStart().Split(' ', 2);
-                                                switch (values[0].TrimStart().TrimStart('\t').TrimStart().ToLower())
+                                                values = trim(text[i]).Split(' ', 2);
+                                                switch (trim(values[0]).ToLower())
                                                 {
                                                     case "connection":
-                                                        pushProvider.Connection = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
+                                                        pushProvider.Connection = trim(values[1]);
                                                         break;
                                                     case "subjects":
                                                         {
-                                                            pushProvider.Subjects = values[1].TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd().Split('|').Select(x => x.TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd()).ToArray();
+                                                            pushProvider.Subjects = trim(values[1]).Split('|').Select(x => x.TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd()).ToArray();
                                                             break;
                                                         }
                                                     case "protocol":
@@ -832,6 +832,10 @@ namespace Archer.Core
                 return request;
             }
             return null;
+        }
+        private string trim(string str)
+        {
+            return str.TrimStart().TrimStart('\t').TrimStart().TrimEnd().TrimEnd('\t').TrimEnd();
         }
     }
 }
