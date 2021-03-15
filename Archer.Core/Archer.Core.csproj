@@ -11,6 +11,7 @@
     <ProjectReference Include="../Archer.Archetype/Archer.Archetype.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="centaurus.quest.core" Version="1.0.0" />
     <PackageReference Include="Centaurus.Spider.Archetype" Version="1.0.0" />
     <PackageReference Include="Centaurus.Spider.Core" Version="1.0.0" />
     <PackageReference Include="Centaurus.Spider.Extensions.Logging" Version="1.0.0" />

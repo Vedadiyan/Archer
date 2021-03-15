@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Archer.Core.Prototypes;
 using Archer.Core.Prototypes.Logs;
 using Archer.Core.ResponseHandlers;
+using Quest.Core.Grammar;
 using Spider.Archer.ResponseHandlers;
 using Spider.ArcheType;
 using Spider.Extensions.Logging.Abstraction;
@@ -119,7 +120,7 @@ namespace Archer.Core.RequestHandlers
                                 Url = definition.RouteTemplate,
                                 TrackingCode = trackingCode,
                                 Status = "Forbidden",
-                                Cause =  isAuthenticated.Message
+                                Cause = isAuthenticated.Message
                             })));
                         }
                         return new Error(ContentTypes.JSON, HttpStatusCode.Forbidden, trackingCode, new ResponseFormatter
@@ -149,7 +150,18 @@ namespace Archer.Core.RequestHandlers
                     });
                 }
             }
-            var concatenatedValues = context.Query.Concat(context.RouteValues);
+            var concatenatedValues = context.Query.Select(x =>
+            {
+                if (x.Value is string str)
+                {
+                    var value = str.TrimStart().TrimStart('\t').TrimStart().TrimEnd('\t');
+                    if (value.StartsWith('{') && value.EndsWith('}'))
+                    {
+                        return new KeyValuePair<string, object>(x.Key, new QuestReader(value));
+                    }
+                }
+                return x;
+            }).ToDictionary(x => x.Key, x => x.Value).Concat(context.RouteValues);
             if (redisProvider.UseBody)
             {
                 if (context.Headers["content-type"] == "application/json")
@@ -178,6 +190,7 @@ namespace Archer.Core.RequestHandlers
             }
             var concatenatedDictionary = concatenatedValues.ToDictionary(k => k.Key.ToLower(), v => v.Value);
             String query = redisProvider.Key;
+            // Needs Revision
             foreach (var i in concatenatedDictionary)
             {
                 if (i.Value is String || i.Value is DateTime)
@@ -189,6 +202,7 @@ namespace Archer.Core.RequestHandlers
                     query = query.Replace($"@{i.Key}", i.Value.ToString());
                 }
             }
+            // End of Revision Block
             try
             {
                 StackExchange.Redis.ConnectionMultiplexer connectionMultiplexer = await StackExchange.Redis.ConnectionMultiplexer.ConnectAsync(Storage.GetConnection(redisProvider.ConnectionString).ConnectionString);
@@ -206,10 +220,21 @@ namespace Archer.Core.RequestHandlers
                     {
                         foreach (var input in concatenatedDictionary)
                         {
-                            if (headers[iter].ToLower() == input.Key)
+                            if (input.Value is QuestReader qr)
                             {
-                                inputs.Add(iter, input.Value.ToString());
-                                break;
+                                if (qr.Eval(headers[iter]))
+                                {
+                                    inputs.Add(iter, input.Value.ToString());
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if (headers[iter].ToLower() == input.Key)
+                                {
+                                    inputs.Add(iter, input.Value.ToString());
+                                    break;
+                                }
                             }
                         }
                     }
@@ -264,7 +289,7 @@ namespace Archer.Core.RequestHandlers
                             }
                         }
                         formatObject.Format(groupBy);
-                        return new Success(ContentTypes.JSON, formatObject.GetJSON() , new ResponseFormatter
+                        return new Success(ContentTypes.JSON, formatObject.GetJSON(), new ResponseFormatter
                         {
                             IsWrapped = definition.IsWrapped,
                             IsCamelCase = definition.IsCamelCase
