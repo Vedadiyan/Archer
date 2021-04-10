@@ -196,6 +196,22 @@ namespace Archer.Core
                         case "method":
                             definition.Method = trim(values[1]);
                             break;
+                        case "use":
+                            string[] useValues = trim(values[1]).Split();
+                            switch (useValues[0].ToLower())
+                            {
+                                case "quest":
+                                    List<string> questParameters = new List<string>();
+                                    for(int iter = 1; iter < useValues.Length; iter++) {
+                                        questParameters.Add(useValues[iter]);
+                                    }
+                                    definition.QuestParameters = questParameters.ToArray();
+                                    break;
+                                case "restrict-json-in-query-string":
+                                    definition.RestrictJsonInQueryString = true;
+                                    break;
+                            }
+                            break;
                         case "data-source":
                             {
                                 String value = trim(values[1]);

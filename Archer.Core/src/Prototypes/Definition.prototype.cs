@@ -16,6 +16,8 @@ namespace Archer.Core.Prototypes
         public IDataServiceProvider DataServiceProvider { get; set; }
         public bool IsWrapped { get; set; }
         public bool IsCamelCase { get; set; }
+        public string[] QuestParameters { get;  set; }
+        public bool RestrictJsonInQueryString { get; set; }
     }
     public enum LogLevel
     {

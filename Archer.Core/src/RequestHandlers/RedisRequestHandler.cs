@@ -147,18 +147,31 @@ namespace Archer.Core.RequestHandlers
                     });
                 }
             }
-            var concatenatedValues = context.Query.Select(x =>
+            Dictionary<string, object> concatenatedDictionary = new Dictionary<string, object>();
+            foreach (var q in context.Query)
             {
-                if (x.Value is string str)
+                if (q.Value is string str)
                 {
                     var value = str.TrimStart().TrimStart('\t').TrimStart().TrimEnd('\t');
-                    if (value.StartsWith('{') && value.EndsWith('}'))
+                    if (definition.QuestParameters != null && definition.QuestParameters.Contains(q.Key) && value.StartsWith('{') && value.EndsWith('}'))
                     {
-                        return new KeyValuePair<string, object>(x.Key, new QuestReader(value));
+                        concatenatedDictionary.Add(q.Key.ToLower(), new QuestReader(value));
+                    }
+                    else if (definition.RestrictJsonInQueryString)
+                    {
+                        return new Error(ContentTypes.JSON, HttpStatusCode.BadRequest, requestId, new ResponseFormatter
+                        {
+                            IsWrapped = definition.IsWrapped,
+                            IsCamelCase = definition.IsCamelCase
+                        });
                     }
                 }
-                return x;
-            }).ToDictionary(x => x.Key, x => x.Value).Concat(context.RouteValues);
+                concatenatedDictionary.Add(q.Key.ToLower(), q.Value);
+            }
+            foreach (var r in context.RouteValues)
+            {
+                concatenatedDictionary.Add(r.Key.ToLower(), r.Value);
+            }
             if (redisProvider.UseBody)
             {
                 if (context.Headers["content-type"] == "application/json")
@@ -169,7 +182,10 @@ namespace Archer.Core.RequestHandlers
                         {
                             streamRreader.BaseStream.Seek(0, SeekOrigin.Begin);
                             var body = await streamRreader.ReadToEndAsync();
-                            concatenatedValues = concatenatedValues.Concat(System.Text.Json.JsonSerializer.Deserialize<Dictionary<String, Object>>(body));
+                            foreach (var v in System.Text.Json.JsonSerializer.Deserialize<Dictionary<String, Object>>(body))
+                            {
+                                concatenatedDictionary.Add(v.Key.ToLower(), v.Value);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -185,7 +201,6 @@ namespace Archer.Core.RequestHandlers
                     }
                 }
             }
-            var concatenatedDictionary = concatenatedValues.ToDictionary(k => k.Key.ToLower(), v => v.Value);
             String query = redisProvider.Key;
             // Needs Revision
             foreach (var i in concatenatedDictionary)

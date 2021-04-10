@@ -35,7 +35,6 @@ namespace Archer.Core.RequestHandlers
         {
 
         }
-
         public async Task<IResponse> HandleRequest(IContext context)
         {
             string requestId = Guid.NewGuid().ToString();
