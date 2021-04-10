@@ -37,6 +37,7 @@ namespace Archer.Core.RequestHandlers
 
         public async Task<IResponse> HandleRequest(IContext context)
         {
+            string requestId = Guid.NewGuid().ToString();
             if (definition.Authentication != "no-auth")
             {
                 try
@@ -44,20 +45,18 @@ namespace Archer.Core.RequestHandlers
                     (Boolean Result, String Message) isAuthenticated = await Storage.GetAuthentication(definition.Authentication).Authenticate(context);
                     if (!isAuthenticated.Result)
                     {
-                        string trackingCode = null;
                         if (definition.LogLevel >= LogLevel.Warning)
                         {
-                            trackingCode = Guid.NewGuid().ToString();
                             logger?.Warning(new Warning<MSSqlRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Parameters = context.Headers["Authorization"],
                                 Url = definition.RouteTemplate,
-                                TrackingCode = trackingCode,
+                                RequestId = requestId,
                                 Status = "Forbidden",
                                 Cause = isAuthenticated.Message
                             })));
                         }
-                        return new Error(ContentTypes.JSON, HttpStatusCode.Forbidden, trackingCode, new ResponseFormatter
+                        return new Error(ContentTypes.JSON, HttpStatusCode.Forbidden, requestId, new ResponseFormatter
                         {
                             IsWrapped = definition.IsWrapped,
                             IsCamelCase = definition.IsCamelCase
@@ -66,18 +65,16 @@ namespace Archer.Core.RequestHandlers
                 }
                 catch (Exception ex)
                 {
-                    string trackingCode = null;
                     if (definition.LogLevel >= LogLevel.Exception)
                     {
-                        trackingCode = Guid.NewGuid().ToString();
                         logger?.Error(ex, new Error<MSSqlRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Url = definition.RouteTemplate,
-                            TrackingCode = trackingCode,
+                            RequestId = requestId,
                             Status = "Internal Server Error",
                         })));
                     }
-                    return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, trackingCode, new ResponseFormatter
+                    return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, requestId, new ResponseFormatter
                     {
                         IsWrapped = definition.IsWrapped,
                         IsCamelCase = definition.IsCamelCase
@@ -138,19 +135,17 @@ namespace Archer.Core.RequestHandlers
             }
             catch (Exception ex)
             {
-                string trackingCode = null;
                 if (definition.LogLevel >= LogLevel.Exception)
                 {
-                    trackingCode = Guid.NewGuid().ToString();
                     logger?.Error(ex, new Error<MSSqlRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                     {
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,
-                        TrackingCode = trackingCode,
+                        RequestId = requestId,
                         Status = "Database Connection Failure",
                     })));
                 }
-                return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, trackingCode, new ResponseFormatter
+                return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, requestId, new ResponseFormatter
                 {
                     IsWrapped = definition.IsWrapped,
                     IsCamelCase = definition.IsCamelCase
@@ -196,6 +191,7 @@ namespace Archer.Core.RequestHandlers
                         {
                             Parameters = concatenatedDictionary,
                             Url = definition.RouteTemplate,
+                            RequestId = requestId,
                             Status = "OK"
                         })));
                     }
@@ -213,10 +209,11 @@ namespace Archer.Core.RequestHandlers
                         {
                             Parameters = concatenatedDictionary,
                             Url = definition.RouteTemplate,
+                            RequestId = requestId,
                             Status = "Object Could not be Formatted",
                         })));
                     }
-                    return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, String.Empty, new ResponseFormatter
+                    return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, requestId, new ResponseFormatter
                     {
                         IsWrapped = definition.IsWrapped,
                         IsCamelCase = definition.IsCamelCase
@@ -231,10 +228,11 @@ namespace Archer.Core.RequestHandlers
                     {
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,
+                        RequestId = requestId,
                         Status = "Not Found"
                     })));
                 }
-                return new Error(ContentTypes.JSON, HttpStatusCode.NotFound, String.Empty, new ResponseFormatter
+                return new Error(ContentTypes.JSON, HttpStatusCode.NotFound, requestId, new ResponseFormatter
                 {
                     IsWrapped = definition.IsWrapped,
                     IsCamelCase = definition.IsCamelCase

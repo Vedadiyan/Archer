@@ -37,7 +37,7 @@ namespace Archer.Core.RequestHandlers
         public async Task<IResponse> HandleRequest(IContext context)
         {
 
-
+            string requestId = Guid.NewGuid().ToString();
             if (definition.Authentication != "no-auth")
             {
                 try
@@ -45,20 +45,18 @@ namespace Archer.Core.RequestHandlers
                     (Boolean Result, String Message) isAuthenticated = await Storage.GetAuthentication(definition.Authentication).Authenticate(context);
                     if (!isAuthenticated.Result)
                     {
-                        string trackingCode = null;
                         if (definition.LogLevel >= LogLevel.Warning)
                         {
-                            trackingCode = Guid.NewGuid().ToString();
                             logger?.Warning(new Warning<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Parameters = context.Headers["Authorization"],
                                 Url = definition.RouteTemplate,
-                                TrackingCode = trackingCode,
+                                RequestId = requestId,
                                 Status = "Forbidden",
                                 Cause = isAuthenticated.Message
                             })));
                         }
-                        return new Error(ContentTypes.JSON, HttpStatusCode.Forbidden, trackingCode, new ResponseFormatter
+                        return new Error(ContentTypes.JSON, HttpStatusCode.Forbidden, requestId, new ResponseFormatter
                         {
                             IsWrapped = definition.IsWrapped,
                             IsCamelCase = definition.IsCamelCase
@@ -74,11 +72,11 @@ namespace Archer.Core.RequestHandlers
                         logger?.Error(ex, new Error<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Url = definition.RouteTemplate,
-                            TrackingCode = trackingCode,
+                            RequestId = requestId,
                             Status = "Internal Server Error",
                         })));
                     }
-                    return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, trackingCode, new ResponseFormatter
+                    return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, requestId, new ResponseFormatter
                     {
                         IsWrapped = definition.IsWrapped,
                         IsCamelCase = definition.IsCamelCase
@@ -106,10 +104,11 @@ namespace Archer.Core.RequestHandlers
                             logger?.Error(ex, new Error<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Url = definition.RouteTemplate,
+                                RequestId = requestId,
                                 Status = "Bad Request"
                             })));
                         }
-                        return new Error(ContentTypes.JSON, HttpStatusCode.BadRequest, String.Empty, new ResponseFormatter
+                        return new Error(ContentTypes.JSON, HttpStatusCode.BadRequest, requestId, new ResponseFormatter
                         {
                             IsWrapped = definition.IsWrapped,
                             IsCamelCase = definition.IsCamelCase
@@ -209,7 +208,6 @@ namespace Archer.Core.RequestHandlers
                 {
                     responseString = WebException.Message;
                 }
-                string trackingCode = Guid.NewGuid().ToString();
                 if (definition.LogLevel >= LogLevel.Exception)
                 {
                     logger?.Error(WebException, new Error<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
@@ -217,11 +215,11 @@ namespace Archer.Core.RequestHandlers
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,
                         Status = "Server Error",
-                        TrackingCode = trackingCode,
+                        RequestId = requestId,
                         Response = responseString
                     })));
                 }
-                return new Error(ContentTypes.JSON, webResponse.StatusCode, trackingCode, new ResponseFormatter
+                return new Error(ContentTypes.JSON, webResponse.StatusCode, requestId, new ResponseFormatter
                 {
                     IsWrapped = definition.IsWrapped,
                     IsCamelCase = definition.IsCamelCase

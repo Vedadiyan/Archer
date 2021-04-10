@@ -103,6 +103,7 @@ namespace Archer.Core.RequestHandlers
         public async Task<IResponse> HandleRequest(IContext context)
         {
 
+            string requestId = Guid.NewGuid().ToString();
             if (definition.Authentication != "no-auth")
             {
                 try
@@ -110,20 +111,18 @@ namespace Archer.Core.RequestHandlers
                     (Boolean Result, String Message) isAuthenticated = await Storage.GetAuthentication(definition.Authentication).Authenticate(context);
                     if (!isAuthenticated.Result)
                     {
-                        string trackingCode = null;
                         if (definition.LogLevel >= LogLevel.Warning)
                         {
-                            trackingCode = Guid.NewGuid().ToString();
                             logger?.Warning(new Warning<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Parameters = context.Headers["Authorization"],
                                 Url = definition.RouteTemplate,
-                                TrackingCode = trackingCode,
+                                RequestId = requestId,
                                 Status = "Forbidden",
                                 Cause = isAuthenticated.Message
                             })));
                         }
-                        return new Error(ContentTypes.JSON, HttpStatusCode.Forbidden, trackingCode, new ResponseFormatter
+                        return new Error(ContentTypes.JSON, HttpStatusCode.Forbidden, requestId, new ResponseFormatter
                         {
                             IsWrapped = definition.IsWrapped,
                             IsCamelCase = definition.IsCamelCase
@@ -132,18 +131,16 @@ namespace Archer.Core.RequestHandlers
                 }
                 catch (Exception ex)
                 {
-                    string trackingCode = null;
                     if (definition.LogLevel >= LogLevel.Exception)
                     {
-                        trackingCode = Guid.NewGuid().ToString();
                         logger?.Error(ex, new Error<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Url = definition.RouteTemplate,
-                            TrackingCode = trackingCode,
+                            RequestId = requestId,
                             Status = "Internal Server Error",
                         })));
                     }
-                    return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, trackingCode, new ResponseFormatter
+                    return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, requestId, new ResponseFormatter
                     {
                         IsWrapped = definition.IsWrapped,
                         IsCamelCase = definition.IsCamelCase
@@ -205,8 +202,17 @@ namespace Archer.Core.RequestHandlers
             // End of Revision Block
             try
             {
+                if (definition.LogLevel == LogLevel.Verbose)
+                {
+                    logger.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    {
+                        Parameters = concatenatedDictionary,
+                        Url = definition.RouteTemplate,
+                        RequestId = requestId,
+                        Status = "Processing"
+                    })));
+                }
                 StackExchange.Redis.ConnectionMultiplexer connectionMultiplexer = await StackExchange.Redis.ConnectionMultiplexer.ConnectAsync(Storage.GetConnection(redisProvider.ConnectionString).ConnectionString);
-                Console.WriteLine("Working...");
                 String result = await connectionMultiplexer.GetDatabase(redisProvider.Database).StringGetAsync(redisProvider.Key);
                 await connectionMultiplexer.CloseAsync();
                 if (!String.IsNullOrEmpty(result))
@@ -239,46 +245,68 @@ namespace Archer.Core.RequestHandlers
                         }
                     }
                     List<Task> tasks = new List<Task>();
-                    for (int x = 2; x < lines.Length - 2; x++)
+                    for (int x = 2; x < lines.Length; x++)
                     {
                         int line = x;
                         tasks.Add(Task.Run(() =>
                         {
-                            var row = lines[line].Split(',');
-                            Boolean isMatch = inputs.Count == 0;
-                            foreach (var input in inputs)
+                            if (!String.IsNullOrEmpty(lines[line]))
                             {
-                                if (row[input.Key] == input.Value)
+                                var row = lines[line].Split(',');
+                                Boolean isMatch = inputs.Count == 0;
+                                foreach (var input in inputs)
                                 {
-                                    isMatch = true;
-                                    break;
+                                    if (row[input.Key] == input.Value)
+                                    {
+                                        isMatch = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            if (isMatch)
-                            {
-                                Dictionary<String, Object> value = new Dictionary<String, Object>();
-                                for (int column = 0; column < row.Length; column++)
+                                if (isMatch)
                                 {
-                                    Object objectValue = null;
-                                    if (!String.IsNullOrEmpty(row[column]))
+                                    Dictionary<String, Object> value = new Dictionary<String, Object>();
+                                    for (int column = 0; column < row.Length; column++)
                                     {
-                                        objectValue = Convert.ChangeType(row[column], types[column]);
+                                        Object objectValue = null;
+                                        if (!String.IsNullOrEmpty(row[column]))
+                                        {
+                                            objectValue = Convert.ChangeType(row[column], types[column]);
+                                        }
+                                        else
+                                        {
+                                            objectValue = "ERROR";
+                                        }
+                                        value.Add(headers[column], objectValue);
                                     }
-                                    else
-                                    {
-                                        objectValue = "ERROR";
-                                    }
-                                    value.Add(headers[column], objectValue);
+                                    values.Add(value);
                                 }
-                                values.Add(value);
                             }
                         }));
                     }
                     await Task.WhenAll(tasks);
-                    Console.WriteLine("Done");
+                    if (definition.LogLevel == LogLevel.Verbose)
+                    {
+                        logger.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        {
+                            Parameters = concatenatedDictionary,
+                            Url = definition.RouteTemplate,
+                            RequestId = requestId,
+                            Status = "Finished Processing"
+                        })));
+                    }
                     FormatObject formatObject = new FormatObject(definition.Map, definition.Exclude);
                     if (definition.Groups?.Count > 0)
                     {
+                        if (definition.LogLevel == LogLevel.Verbose)
+                        {
+                            logger.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            {
+                                Parameters = concatenatedDictionary,
+                                Url = definition.RouteTemplate,
+                                RequestId = requestId,
+                                Status = "Post-Processing"
+                            })));
+                        }
                         GroupBy groupBy = new GroupBy(definition.Groups.ElementAt(0).Value, values.ToList());
                         groupBy.Group();
                         if (definition.Groups.Count > 1)
@@ -289,6 +317,16 @@ namespace Archer.Core.RequestHandlers
                             }
                         }
                         formatObject.Format(groupBy);
+                        if (definition.LogLevel == LogLevel.Verbose)
+                        {
+                            logger.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            {
+                                Parameters = concatenatedDictionary,
+                                Url = definition.RouteTemplate,
+                                RequestId = requestId,
+                                Status = "Finished Post-Processing"
+                            })));
+                        }
                         return new Success(ContentTypes.JSON, formatObject.GetJSON(), new ResponseFormatter
                         {
                             IsWrapped = definition.IsWrapped,
@@ -298,7 +336,6 @@ namespace Archer.Core.RequestHandlers
                     else
                     {
                         formatObject.Format(values.ToList());
-                        Console.WriteLine("Done Again");
                         return new Success(ContentTypes.JSON, formatObject.GetJSON(true), new ResponseFormatter
                         {
                             IsWrapped = definition.IsWrapped,
@@ -314,10 +351,11 @@ namespace Archer.Core.RequestHandlers
                         {
                             Parameters = concatenatedDictionary,
                             Url = definition.RouteTemplate,
+                            RequestId = requestId,
                             Status = "Not Found"
                         })));
                     }
-                    return new Error(ContentTypes.JSON, HttpStatusCode.NotFound, String.Empty, new ResponseFormatter
+                    return new Error(ContentTypes.JSON, HttpStatusCode.NotFound, requestId, new ResponseFormatter
                     {
                         IsWrapped = definition.IsWrapped,
                         IsCamelCase = definition.IsCamelCase
@@ -327,19 +365,17 @@ namespace Archer.Core.RequestHandlers
             }
             catch (Exception ex)
             {
-                string trackingCode = null;
                 if (definition.LogLevel >= LogLevel.Exception)
                 {
-                    trackingCode = Guid.NewGuid().ToString();
                     logger?.Error(ex, new Error<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                     {
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,
-                        TrackingCode = trackingCode,
+                        RequestId = requestId,
                         Status = "Internal Server Error"
                     })));
                 }
-                return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, trackingCode, new ResponseFormatter
+                return new Error(ContentTypes.JSON, HttpStatusCode.InternalServerError, requestId, new ResponseFormatter
                 {
                     IsWrapped = definition.IsWrapped,
                     IsCamelCase = definition.IsCamelCase
