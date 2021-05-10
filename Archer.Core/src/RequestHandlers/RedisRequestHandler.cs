@@ -83,11 +83,20 @@ namespace Archer.Core.RequestHandlers
                     {
                         for (int column = 0; column < dataTable.Columns.Count; column++)
                         {
-                            sb.Append(row[column].ToString());
+                            object value = row[column];
+                            if (value == DBNull.Value)
+                            {
+                                sb.Append("null");
+                            }
+                            else
+                            {
+                                sb.Append("").Append(row[column].ToString().Replace(",", "\\,"));
+                            }
                             if (column < dataTable.Columns.Count - 1)
                             {
                                 sb.Append(",");
                             }
+
                         }
                         sb.Append("\n");
                     }
@@ -285,7 +294,13 @@ namespace Archer.Core.RequestHandlers
                                         Object objectValue = null;
                                         if (!String.IsNullOrEmpty(row[column]))
                                         {
-                                            objectValue = Convert.ChangeType(row[column], types[column]);
+                                            if (row[column] != "null")
+                                            {
+                                                objectValue = Convert.ChangeType(row[column], types[column]);
+                                            }
+                                            else {
+                                                  objectValue = DBNull.Value;
+                                            }
                                         }
                                         else
                                         {
@@ -367,10 +382,10 @@ namespace Archer.Core.RequestHandlers
                             Parameters = concatenatedDictionary,
                             Url = definition.RouteTemplate,
                             RequestId = requestId,
-                            Status = "Not Found"
+                            Status = "No Content"
                         })));
                     }
-                    return new Error(ContentTypes.JSON, HttpStatusCode.NotFound, requestId, new ResponseFormatter
+                    return new Error(ContentTypes.JSON, HttpStatusCode.NoContent, requestId, new ResponseFormatter
                     {
                         IsWrapped = definition.IsWrapped,
                         IsCamelCase = definition.IsCamelCase

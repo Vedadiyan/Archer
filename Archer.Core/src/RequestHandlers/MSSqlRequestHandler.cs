@@ -229,10 +229,10 @@ namespace Archer.Core.RequestHandlers
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,
                         RequestId = requestId,
-                        Status = "Not Found"
+                        Status = "No Content"
                     })));
                 }
-                return new Error(ContentTypes.JSON, HttpStatusCode.NotFound, requestId, new ResponseFormatter
+                return new Error(ContentTypes.JSON, HttpStatusCode.NoContent, requestId, new ResponseFormatter
                 {
                     IsWrapped = definition.IsWrapped,
                     IsCamelCase = definition.IsCamelCase
