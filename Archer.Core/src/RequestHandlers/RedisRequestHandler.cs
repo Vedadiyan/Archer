@@ -90,7 +90,15 @@ namespace Archer.Core.RequestHandlers
                             }
                             else
                             {
-                                sb.Append("").Append(row[column].ToString().Replace(",", "\\,"));
+                                var strValue = row[column].ToString();
+                                if (strValue == "null")
+                                {
+                                    sb.Append(strValue).Append(" ");
+                                }
+                                else
+                                {
+                                    sb.Append(strValue.Replace(",", "\\,"));
+                                }
                             }
                             if (column < dataTable.Columns.Count - 1)
                             {
@@ -296,10 +304,17 @@ namespace Archer.Core.RequestHandlers
                                         {
                                             if (row[column] != "null")
                                             {
-                                                objectValue = Convert.ChangeType(row[column], types[column]);
+                                                if (row[column] == "null ") { 
+                                                    objectValue = "null";
+                                                }
+                                                else
+                                                {
+                                                    objectValue = Convert.ChangeType(row[column], types[column]);
+                                                }
                                             }
-                                            else {
-                                                  objectValue = DBNull.Value;
+                                            else
+                                            {
+                                                objectValue = DBNull.Value;
                                             }
                                         }
                                         else
