@@ -84,6 +84,7 @@ namespace Archer.Core.RequestHandlers
                 }
             }
             var concatenatedValues = context.Query.Concat(context.RouteValues);
+            string body = null;
             if (routeProvider.UseBody)
             {
                 if (context.Headers["content-type"] == "application/json")
@@ -93,7 +94,7 @@ namespace Archer.Core.RequestHandlers
                         using (StreamReader streamRreader = new StreamReader(context.Body))
                         {
                             streamRreader.BaseStream.Seek(0, SeekOrigin.Begin);
-                            var body = await streamRreader.ReadToEndAsync();
+                            body = await streamRreader.ReadToEndAsync();
                             concatenatedValues = concatenatedValues.Concat(System.Text.Json.JsonSerializer.Deserialize<Dictionary<String, Object>>(body));
                         }
                     }
@@ -162,11 +163,11 @@ namespace Archer.Core.RequestHandlers
                         }
                     }
                 }
-                if (!String.IsNullOrEmpty(bodyTemplate))
+                if (routeProvider.UseBody)
                 {
                     using (StreamWriter sw = new StreamWriter(await webRequest.GetRequestStreamAsync()))
                     {
-                        await sw.WriteAsync(bodyTemplate);
+                        await sw.WriteAsync(bodyTemplate ?? body);
                     }
                 }
                 HttpWebResponse webResponse = (HttpWebResponse)await webRequest.GetResponseAsync();

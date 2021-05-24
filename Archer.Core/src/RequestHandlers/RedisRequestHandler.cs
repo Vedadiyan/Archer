@@ -284,7 +284,7 @@ namespace Archer.Core.RequestHandlers
                         {
                             if (!String.IsNullOrEmpty(lines[line]))
                             {
-                                var row = lines[line].Split(',');
+                                var row = split(lines[line]).ToArray();
                                 Boolean isMatch = inputs.Count == 0;
                                 foreach (var input in inputs)
                                 {
@@ -304,7 +304,8 @@ namespace Archer.Core.RequestHandlers
                                         {
                                             if (row[column] != "null")
                                             {
-                                                if (row[column] == "null ") { 
+                                                if (row[column] == "null ")
+                                                {
                                                     objectValue = "null";
                                                 }
                                                 else
@@ -431,6 +432,37 @@ namespace Archer.Core.RequestHandlers
         public void Suspend()
         {
             timer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+        private IEnumerable<string> split(string str)
+        {
+            StringBuilder buffer = new StringBuilder();
+            if (str.Length > 0)
+            {
+                if (str[0] == ',')
+                {
+                    yield return "";
+                }
+                else
+                {
+                    buffer.Append(str[0]);
+                }
+                for (int i = 1; i < str.Length; i++)
+                {
+                    if (str[i] == ',' && str[i - 1] != '\\')
+                    {
+                        yield return buffer.ToString();
+                        buffer.Clear();
+                    }
+                    else
+                    {
+                        buffer.Append(str[i]);
+                    }
+                }
+                if (buffer.Length > 0)
+                {
+                    yield return buffer.ToString();
+                }
+            }
         }
     }
 }
