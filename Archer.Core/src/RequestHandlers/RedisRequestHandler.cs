@@ -285,12 +285,12 @@ namespace Archer.Core.RequestHandlers
                             if (!String.IsNullOrEmpty(lines[line]))
                             {
                                 var row = split(lines[line]).ToArray();
-                                Boolean isMatch = inputs.Count == 0;
+                                Boolean isMatch = true;
                                 foreach (var input in inputs)
                                 {
-                                    if (row[input.Key] == input.Value)
+                                    if (row[input.Key] != input.Value)
                                     {
-                                        isMatch = true;
+                                        isMatch = false;
                                         break;
                                     }
                                 }

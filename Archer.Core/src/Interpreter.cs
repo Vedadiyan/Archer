@@ -58,51 +58,62 @@ namespace Archer.Core
             FileSystemWatcher fileSystemWatcher = new FileSystemWatcher(apiDirectory);
             fileSystemWatcher.Changed += async (sender, e) =>
             {
-                if (e.Name.EndsWith(".api"))
-                {
-                    String[] content = await GetFileContent(e.FullPath);
-                    if (content != null)
-                    {
-                        Definition definition = GetDefinition(content);
-                        IRequest request = GetRequest(definition);
-                        if (requestPool.ContainsKey(e.FullPath))
-                        {
-                            if (request != null)
-                            {
-                                requestPool[e.FullPath].Suspend();
-                                requestPool.Remove(e.FullPath);
-                                Router.UnregisterRoute(routes[e.FullPath]);
-                                Router.RegisterRoute(routes[e.FullPath] = new Route(definition.RouteTemplate, definition.Method, request));
-                                requestPool.Add(e.FullPath, request);
-                                Console.WriteLine("Re-Registering {0}", e.FullPath);
-                            }
-                            else
-                            {
-                                routes.Remove(e.FullPath);
-                                Console.WriteLine("Removing {0}", e.FullPath);
-                            }
-                        }
-                        else
-                        {
-                            routes.Add(e.FullPath, new Route(definition.RouteTemplate, definition.Method, request));
-                            Router.RegisterRoute(routes[e.FullPath]);
-                            requestPool.Add(e.FullPath, request);
-                            Console.WriteLine("Registering {0}", e.FullPath);
-                        }
-                    }
-                }
+                Console.WriteLine("{0}: Changed", e.FullPath);
+                await FileChange(e.FullPath);
             };
             fileSystemWatcher.Deleted += (sender, e) =>
             {
-                if (e.Name.EndsWith(".api"))
-                {
-                    requestPool[e.FullPath].Suspend();
-                    requestPool.Remove(e.FullPath);
-                    Router.UnregisterRoute(routes[e.FullPath]);
-                    routes.Remove(e.FullPath);
-                }
+                FileDelete(e.FullPath);
             };
             fileSystemWatcher.EnableRaisingEvents = true;
+        }
+        public async Task FileChange(string fullPath)
+        {
+            string name = Path.GetExtension(fullPath);
+            if (name.Equals(".api"))
+            {
+                String[] content = await GetFileContent(fullPath);
+                if (content != null)
+                {
+                    Definition definition = GetDefinition(content);
+                    IRequest request = GetRequest(definition);
+                    if (requestPool.ContainsKey(fullPath))
+                    {
+                        if (request != null)
+                        {
+                            requestPool[fullPath].Suspend();
+                            requestPool.Remove(fullPath);
+                            Router.UnregisterRoute(routes[fullPath]);
+                            Router.RegisterRoute(routes[fullPath] = new Route(definition.RouteTemplate, definition.Method, request));
+                            requestPool.Add(fullPath, request);
+                            Console.WriteLine("Re-Registering {0}", fullPath);
+                        }
+                        else
+                        {
+                            routes.Remove(fullPath);
+                            Console.WriteLine("Removing {0}", fullPath);
+                        }
+                    }
+                    else
+                    {
+                        routes.Add(fullPath, new Route(definition.RouteTemplate, definition.Method, request));
+                        Router.RegisterRoute(routes[fullPath]);
+                        requestPool.Add(fullPath, request);
+                        Console.WriteLine("Registering {0}", fullPath);
+                    }
+                }
+            }
+        }
+        public void FileDelete(string fullPath)
+        {
+            string name = Path.GetExtension(fullPath);
+            if (name.Equals(".api"))
+            {
+                requestPool[fullPath].Suspend();
+                requestPool.Remove(fullPath);
+                Router.UnregisterRoute(routes[fullPath]);
+                routes.Remove(fullPath);
+            }
         }
         public async Task<String[]> GetFileContent(String path)
         {
@@ -202,7 +213,8 @@ namespace Archer.Core
                             {
                                 case "quest":
                                     List<string> questParameters = new List<string>();
-                                    for(int iter = 1; iter < useValues.Length; iter++) {
+                                    for (int iter = 1; iter < useValues.Length; iter++)
+                                    {
                                         questParameters.Add(useValues[iter]);
                                     }
                                     definition.QuestParameters = questParameters.ToArray();

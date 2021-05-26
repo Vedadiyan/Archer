@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Archer.Archetype", "Archer.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Archer.Core", "Archer.Core\Archer.Core.csproj", "{EB4B7D14-47F4-44ED-98F2-CAFD61E6A510}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Archer.Test", "Archer.Test\Archer.Test.csproj", "{DEA43B22-FC4C-4100-A912-9092A4BBDB68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{EB4B7D14-47F4-44ED-98F2-CAFD61E6A510}.Release|x64.Build.0 = Release|Any CPU
 		{EB4B7D14-47F4-44ED-98F2-CAFD61E6A510}.Release|x86.ActiveCfg = Release|Any CPU
 		{EB4B7D14-47F4-44ED-98F2-CAFD61E6A510}.Release|x86.Build.0 = Release|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Debug|x64.Build.0 = Debug|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Debug|x86.Build.0 = Debug|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Release|x64.ActiveCfg = Release|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Release|x64.Build.0 = Release|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Release|x86.ActiveCfg = Release|Any CPU
+		{DEA43B22-FC4C-4100-A912-9092A4BBDB68}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
