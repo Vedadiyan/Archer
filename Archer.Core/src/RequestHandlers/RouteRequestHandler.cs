@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Archer.Core.Prototypes;
-using Archer.Core.Prototypes.Logs;
 using Archer.Core.ResponseHandlers;
 using Newtonsoft.Json.Linq;
 using Spider.Archer.ResponseHandlers;
@@ -47,7 +46,7 @@ namespace Archer.Core.RequestHandlers
                     {
                         if (definition.LogLevel >= LogLevel.Warning)
                         {
-                            logger?.Warning(new Warning<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            logger?.Warning(new LogMessage<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Parameters = context.Headers["Authorization"],
                                 Url = definition.RouteTemplate,
@@ -69,7 +68,7 @@ namespace Archer.Core.RequestHandlers
                     if (definition.LogLevel >= LogLevel.Exception)
                     {
                         trackingCode = Guid.NewGuid().ToString();
-                        logger?.Error(ex, new Error<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        logger?.Error(ex, new LogMessage<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Url = definition.RouteTemplate,
                             RequestId = requestId,
@@ -102,7 +101,7 @@ namespace Archer.Core.RequestHandlers
                     {
                         if (definition.LogLevel >= LogLevel.Exception)
                         {
-                            logger?.Error(ex, new Error<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            logger?.Error(ex, new LogMessage<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Url = definition.RouteTemplate,
                                 RequestId = requestId,
@@ -211,7 +210,7 @@ namespace Archer.Core.RequestHandlers
                 }
                 if (definition.LogLevel >= LogLevel.Exception)
                 {
-                    logger?.Error(WebException, new Error<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    logger?.Error(WebException, new LogMessage<RouteRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                     {
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,
