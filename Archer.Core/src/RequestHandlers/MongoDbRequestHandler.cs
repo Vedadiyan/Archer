@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Archer.Core.Prototypes;
-using Archer.Core.Prototypes.Logs;
 using Archer.Core.ResponseHandlers;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -47,7 +46,7 @@ namespace Archer.Core.RequestHandlers
                     {
                         if (definition.LogLevel >= LogLevel.Warning)
                         {
-                            logger?.Warning(new Warning<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            logger?.Warning(new LogMessage<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Parameters = context.Headers["Authorization"],
                                 Url = definition.RouteTemplate,
@@ -67,7 +66,7 @@ namespace Archer.Core.RequestHandlers
                 {
                     if (definition.LogLevel >= LogLevel.Exception)
                     {
-                        logger?.Error(ex, new Error<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        logger?.Error(ex, new LogMessage<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Url = definition.RouteTemplate,
                             RequestId = requestId,
@@ -99,7 +98,7 @@ namespace Archer.Core.RequestHandlers
                     {
                         if (definition.LogLevel >= LogLevel.Exception)
                         {
-                            logger?.Error(ex, new Error<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            logger?.Error(ex, new LogMessage<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Url = definition.RouteTemplate,
                                 Status = "Bad Request"
@@ -145,7 +144,7 @@ namespace Archer.Core.RequestHandlers
                 {
                     if (definition.LogLevel >= LogLevel.Verbose)
                     {
-                        logger?.Verbose(new Verbose<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        logger?.Verbose(new LogMessage<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Parameters = concatenatedDictionary,
                             Url = definition.RouteTemplate,
@@ -163,7 +162,7 @@ namespace Archer.Core.RequestHandlers
                 {
                     if (definition.LogLevel >= LogLevel.Verbose)
                     {
-                        logger?.Verbose(new Verbose<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        logger?.Verbose(new LogMessage<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Parameters = concatenatedDictionary,
                             Url = definition.RouteTemplate,
@@ -182,7 +181,7 @@ namespace Archer.Core.RequestHandlers
             {
                 if (definition.LogLevel >= LogLevel.Exception)
                 {
-                    logger?.Error(ex, new Error<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    logger?.Error(ex, new LogMessage<MongoDbRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                     {
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,

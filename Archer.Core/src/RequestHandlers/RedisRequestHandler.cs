@@ -10,7 +10,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Archer.Core.Prototypes;
-using Archer.Core.Prototypes.Logs;
 using Archer.Core.ResponseHandlers;
 using Quest.Core.Grammar;
 using Spider.Archer.ResponseHandlers;
@@ -113,7 +112,7 @@ namespace Archer.Core.RequestHandlers
                 }
                 catch (Exception ex)
                 {
-                    logger?.Error(ex, new Error<RedisRequestHandler>(ex.Message));
+                    logger?.Error(ex, new LogMessage<RedisRequestHandler>(ex.Message));
                 }
             }
         }
@@ -130,7 +129,7 @@ namespace Archer.Core.RequestHandlers
                     {
                         if (definition.LogLevel >= LogLevel.Warning)
                         {
-                            logger?.Warning(new Warning<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            logger?.Warning(new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Parameters = context.Headers["Authorization"],
                                 Url = definition.RouteTemplate,
@@ -150,7 +149,7 @@ namespace Archer.Core.RequestHandlers
                 {
                     if (definition.LogLevel >= LogLevel.Exception)
                     {
-                        logger?.Error(ex, new Error<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        logger?.Error(ex, new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Url = definition.RouteTemplate,
                             RequestId = requestId,
@@ -209,7 +208,7 @@ namespace Archer.Core.RequestHandlers
                     {
                         if (definition.LogLevel >= LogLevel.Verbose)
                         {
-                            logger?.Error(ex, new Error<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            logger?.Error(ex, new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Url = definition.RouteTemplate,
                                 Status = "Bad Request",
@@ -236,7 +235,7 @@ namespace Archer.Core.RequestHandlers
             {
                 if (definition.LogLevel == LogLevel.Verbose)
                 {
-                    logger.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    logger.Verbose(new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                     {
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,
@@ -332,7 +331,7 @@ namespace Archer.Core.RequestHandlers
                     await Task.WhenAll(tasks);
                     if (definition.LogLevel == LogLevel.Verbose)
                     {
-                        logger.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        logger.Verbose(new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Parameters = concatenatedDictionary,
                             Url = definition.RouteTemplate,
@@ -345,7 +344,7 @@ namespace Archer.Core.RequestHandlers
                     {
                         if (definition.LogLevel == LogLevel.Verbose)
                         {
-                            logger.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            logger.Verbose(new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Parameters = concatenatedDictionary,
                                 Url = definition.RouteTemplate,
@@ -365,7 +364,7 @@ namespace Archer.Core.RequestHandlers
                         formatObject.Format(groupBy);
                         if (definition.LogLevel == LogLevel.Verbose)
                         {
-                            logger.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                            logger.Verbose(new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                             {
                                 Parameters = concatenatedDictionary,
                                 Url = definition.RouteTemplate,
@@ -393,7 +392,7 @@ namespace Archer.Core.RequestHandlers
                 {
                     if (definition.LogLevel >= LogLevel.Verbose)
                     {
-                        logger?.Verbose(new Verbose<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                        logger?.Verbose(new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                         {
                             Parameters = concatenatedDictionary,
                             Url = definition.RouteTemplate,
@@ -413,7 +412,7 @@ namespace Archer.Core.RequestHandlers
             {
                 if (definition.LogLevel >= LogLevel.Exception)
                 {
-                    logger?.Error(ex, new Error<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    logger?.Error(ex, new LogMessage<RedisRequestHandler>(Newtonsoft.Json.JsonConvert.SerializeObject(new
                     {
                         Parameters = concatenatedDictionary,
                         Url = definition.RouteTemplate,

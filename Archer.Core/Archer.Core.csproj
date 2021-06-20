@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="centaurus.quest.core" Version="1.0.0" />
-    <PackageReference Include="Centaurus.Spider.Archetype" Version="1.0.0-beta" />
     <PackageReference Include="Centaurus.Spider.Core" Version="1.0.0-nightly.20210525123000" />
     <PackageReference Include="Centaurus.Spider.Extensions.Logging" Version="1.0.0-beta" />
     <PackageReference Include="MongoDB.Driver" Version="2.12.0" />

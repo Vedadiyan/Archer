@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Archer.Core.Prototypes;
-using Archer.Core.Prototypes.Logs;
 using Archer.Core.RequestHandlers;
 using Spider.ArcheType;
 using Spider.Routing;
@@ -44,7 +43,7 @@ namespace Archer.Core
                     }
                     catch (Exception ex)
                     {
-                        logger?.Error(ex, new Error<Interpreter>(ex.Message));
+                        logger?.Error(ex, new LogMessage<Interpreter>(ex.Message));
                     }
 
                 }
@@ -53,7 +52,7 @@ namespace Archer.Core
             }
             catch (Exception ex)
             {
-                logger?.Error(ex, new Error<Interpreter>(ex.Message));
+                logger?.Error(ex, new LogMessage<Interpreter>(ex.Message));
             }
             FileSystemWatcher fileSystemWatcher = new FileSystemWatcher(apiDirectory);
             fileSystemWatcher.Changed += async (sender, e) =>
@@ -811,7 +810,7 @@ namespace Archer.Core
             }
             catch (Exception ex)
             {
-                logger?.Error(ex, new Error<Interpreter>(ex.Message));
+                logger?.Error(ex, new LogMessage<Interpreter>(ex.Message));
                 return null;
             }
         }
@@ -828,7 +827,7 @@ namespace Archer.Core
                 }
                 catch (Exception ex)
                 {
-                    logger?.Error(ex, new Error<Interpreter>(ex.Message));
+                    logger?.Error(ex, new LogMessage<Interpreter>(ex.Message));
                 }
             }
         }
