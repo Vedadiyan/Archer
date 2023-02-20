@@ -126,6 +126,9 @@ namespace Archer.Core.RequestHandlers
                         {
                             command.Parameters.AddWithValue(parameter.Key, value);
                         }
+                        else { 
+                            command.Parameters.AddWithValue(parameter.Key, parameter.Value);
+                        }
                     }
                     command.CommandType = (CommandType)Enum.Parse(typeof(CommandType), mssqlProvider.CommandType);
                     await connection.OpenAsync();
